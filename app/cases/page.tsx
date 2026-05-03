@@ -278,7 +278,7 @@ export default function CasesPage() {
     }
 
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [router]);
 
   function showSuccessMessage(message: string) {
@@ -1305,6 +1305,7 @@ function CaseDetailsPanel({
   const hearingInfo = hearingStatus(selectedCase.next_hearing_date);
 
   async function copySummary() {
+    if (!selectedCase) return;
     const text = `${selectedCase.title}
 الموكل: ${selectedCase.clients?.name || "غير محدد"}
 رقم القضية: ${selectedCase.case_number || "—"} لسنة ${selectedCase.case_year || "—"}
