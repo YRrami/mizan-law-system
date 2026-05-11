@@ -119,3 +119,17 @@ export function formatFileSize(bytes?: number | null) {
   const mb = kb / 1024;
   return `${mb.toFixed(1)} MB`;
 }
+
+export const taskStatusLabels = {
+  todo: "مطلوبة",
+  in_progress: "قيد التنفيذ",
+  done: "تمت",
+  cancelled: "ملغاة",
+} as const;
+
+export const taskPriorityLabels = {
+  low: "منخفضة",
+  medium: "متوسطة",
+  high: "عالية",
+  urgent: "عاجلة",
+} as const;

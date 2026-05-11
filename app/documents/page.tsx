@@ -13,6 +13,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import Can from "@/components/auth/Can";
 import Badge from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
 import Field from "@/components/ui/Field";
@@ -559,7 +560,7 @@ export default function DocumentsPage() {
               <button
                 type="button"
                 onClick={() => setShowUpload((value) => !value)}
-                className="h-10 rounded-[18px] bg-emerald-600 px-4 text-xs font-black text-white shadow-sm transition hover:bg-emerald-700"
+                className="h-10 rounded-[18px] bg-slate-900 px-4 text-xs font-black text-white shadow-sm transition hover:bg-slate-950"
               >
                 {showUpload ? "إغلاق الرفع" : "رفع PDF"}
               </button>
@@ -726,7 +727,7 @@ function FiltersPanel({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="بحث بالعنوان، اسم الملف، الموكل، القضية..."
-          className="h-10 w-full min-w-0 rounded-[16px] border border-black/10 bg-white/85 px-3 text-xs font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-emerald-500/10"
+          className="h-10 w-full min-w-0 rounded-[16px] border border-black/10 bg-white/85 px-3 text-xs font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-slate-400/10"
         />
 
         <div className="grid grid-cols-2 gap-2">
@@ -807,7 +808,7 @@ function DocumentsList({
                 onClick={() => onSelect(doc.id)}
                 className={`w-full min-w-0 rounded-[22px] border p-3 text-right shadow-sm transition ${
                   selected
-                    ? "border-emerald-300 bg-emerald-50/90 ring-4 ring-emerald-500/10"
+                    ? "border-slate-300 bg-slate-100/90 ring-4 ring-slate-400/10"
                     : "border-black/5 bg-white/80 hover:bg-white"
                 }`}
               >
@@ -913,7 +914,7 @@ function DocumentForm({
 
       <button
         disabled={saving}
-        className="h-11 w-full rounded-[18px] bg-emerald-600 text-sm font-black text-white shadow-lg transition hover:bg-emerald-700 disabled:opacity-60"
+        className="h-11 w-full rounded-[18px] bg-slate-900 text-sm font-black text-white shadow-lg transition hover:bg-slate-950 disabled:opacity-60"
       >
         {submitLabel}
       </button>
@@ -969,7 +970,7 @@ function DocumentDetailsPanel({
     <section className="min-w-0 rounded-[28px] border border-white/70 bg-white/75 p-4 shadow-[0_18px_55px_rgba(0,0,0,0.06)] backdrop-blur-3xl lg:p-5 xl:sticky xl:top-6">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="mb-2 inline-flex rounded-full bg-emerald-600 px-3 py-1.5 text-[11px] font-black text-white">
+          <p className="mb-2 inline-flex rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-black text-white">
             ملف المستند
           </p>
           <h2 className="break-words text-xl font-black text-black lg:text-2xl">
@@ -981,23 +982,27 @@ function DocumentDetailsPanel({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {!isEditing ? (
-            <SmallButton tone="amber" onClick={() => startEditDocument(selectedDocument)}>
-              تعديل
-            </SmallButton>
-          ) : (
-            <SmallButton tone="zinc" onClick={cancelEdit}>
-              إلغاء
-            </SmallButton>
-          )}
+          <Can roles={["admin"]}>
+            {!isEditing ? (
+              <SmallButton tone="amber" onClick={() => startEditDocument(selectedDocument)}>
+                تعديل
+              </SmallButton>
+            ) : (
+              <SmallButton tone="zinc" onClick={cancelEdit}>
+                إلغاء
+              </SmallButton>
+            )}
+          </Can>
 
           <SmallButton tone="black" onClick={() => openDocument(selectedDocument)}>
             فتح PDF
           </SmallButton>
 
-          <SmallButton tone="rose" onClick={() => deleteDocument(selectedDocument)}>
-            {deleting ? "حذف..." : "حذف"}
-          </SmallButton>
+          <Can roles={["admin"]}>
+            <SmallButton tone="rose" onClick={() => deleteDocument(selectedDocument)}>
+              {deleting ? "حذف..." : "حذف"}
+            </SmallButton>
+          </Can>
         </div>
       </div>
 
@@ -1040,7 +1045,7 @@ function DocumentDetailsPanel({
               {selectedDocument.client_id ? (
                 <Link
                   href={`/clients/${selectedDocument.client_id}`}
-                  className="font-black text-emerald-700 hover:underline"
+                  className="font-black text-slate-700 hover:underline"
                 >
                   {selectedDocument.clients?.name || "فتح ملف الموكل"}
                 </Link>
@@ -1053,7 +1058,7 @@ function DocumentDetailsPanel({
               {selectedDocument.case_id ? (
                 <Link
                   href={`/cases`}
-                  className="font-black text-violet-700 hover:underline"
+                  className="font-black text-slate-700 hover:underline"
                 >
                   {selectedDocument.cases?.title || "مرتبط بقضية"}
                 </Link>
@@ -1124,10 +1129,10 @@ function SummaryCard({
   tone: "emerald" | "violet" | "blue" | "amber";
 }) {
   const tones = {
-    emerald: "bg-emerald-50 text-emerald-800",
-    violet: "bg-violet-50 text-violet-800",
-    blue: "bg-blue-50 text-blue-800",
-    amber: "bg-amber-50 text-amber-900",
+    emerald: "bg-slate-100 text-slate-800",
+    violet: "bg-slate-100 text-slate-800",
+    blue: "bg-slate-100 text-slate-800",
+    amber: "bg-slate-100 text-slate-800",
   };
 
   return (
@@ -1179,7 +1184,7 @@ function SmallButton({
   onClick: () => void;
 }) {
   const tones = {
-    amber: "bg-amber-100 text-amber-900 hover:bg-amber-200",
+    amber: "bg-slate-100 text-slate-800 hover:bg-amber-200",
     rose: "bg-red-50 text-red-700 hover:bg-red-100",
     zinc: "bg-zinc-100 text-black hover:bg-zinc-200",
     black: "bg-black text-white hover:bg-zinc-800",
@@ -1227,7 +1232,7 @@ function Alert({
 }) {
   const tones = {
     red: "border-red-200 bg-red-50/80 text-red-700",
-    green: "border-emerald-200 bg-emerald-50/80 text-emerald-800",
+    green: "border-slate-200 bg-slate-100/80 text-slate-800",
   };
 
   return (

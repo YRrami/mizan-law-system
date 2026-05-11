@@ -15,12 +15,12 @@ export default function SelectField({
 }: SelectFieldProps) {
   return (
     <div className="min-w-0">
-      <label className="mb-2 block text-sm font-black text-black">{label}</label>
+      <label className="mb-2 block text-sm font-black text-slate-950">{label}</label>
       <select
         value={value}
         required={required}
         onChange={(e) => onChange(e.target.value)}
-        className="h-12 w-full min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-black text-black outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
+        className="h-12 w-full min-w-0 rounded-[20px] border border-slate-200 bg-white px-4 text-sm font-black text-slate-950 outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10"
       >
         {options.map((item) => (
           <option key={item.value} value={item.value}>

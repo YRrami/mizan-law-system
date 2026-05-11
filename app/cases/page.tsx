@@ -12,6 +12,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import Can from "@/components/auth/Can";
 import Badge from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
 import Field from "@/components/ui/Field";
@@ -690,7 +691,7 @@ export default function CasesPage() {
               <button
                 type="button"
                 onClick={() => setShowCreate((value) => !value)}
-                className="h-10 rounded-[18px] bg-violet-600 px-4 text-xs font-black text-white shadow-sm transition hover:bg-violet-700"
+                className="h-10 rounded-[18px] bg-slate-900 px-4 text-xs font-black text-white shadow-sm transition hover:bg-slate-950"
               >
                 {showCreate ? "إغلاق الإضافة" : "إضافة قضية"}
               </button>
@@ -719,12 +720,14 @@ export default function CasesPage() {
           <SummaryCard label="القضايا" value={cases.length} hint="إجمالي" tone="violet" />
           <SummaryCard label="مفتوحة" value={openCasesCount} hint="قيد العمل" tone="blue" />
           <SummaryCard label="جلسات" value={upcomingHearingsCount} hint="قادمة" tone="amber" />
-          <SummaryCard
-            label="متبقي"
-            value={formatMoney(remainingFeesTotal)}
-            hint={`مدفوع: ${formatMoney(paidFeesTotal)}`}
-            tone="rose"
-          />
+          <Can roles={["admin"]}>
+            <SummaryCard
+              label="متبقي"
+              value={formatMoney(remainingFeesTotal)}
+              hint={`مدفوع: ${formatMoney(paidFeesTotal)}`}
+              tone="rose"
+            />
+          </Can>
         </section>
 
         <QuickFilterBar
@@ -847,7 +850,7 @@ function QuickFilterBar({
               onClick={() => onChange(item.key)}
               className={`min-w-[145px] rounded-[18px] border px-3 py-2 text-right transition ${
                 selected
-                  ? "border-violet-300 bg-violet-600 text-white shadow-lg shadow-violet-500/15"
+                  ? "border-slate-300 bg-slate-900 text-white shadow-lg shadow-violet-500/15"
                   : "border-black/5 bg-white/75 text-black hover:bg-white"
               }`}
             >
@@ -913,7 +916,7 @@ function FiltersPanel({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="بحث بالقضية، الرقم، المحكمة، الخصم..."
-          className="h-10 w-full min-w-0 rounded-[16px] border border-black/10 bg-white/85 px-3 text-xs font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-violet-500/10"
+          className="h-10 w-full min-w-0 rounded-[16px] border border-black/10 bg-white/85 px-3 text-xs font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-slate-400/10"
         />
 
         <div className="grid grid-cols-2 gap-2">
@@ -1008,7 +1011,7 @@ function CasesList({
                 onClick={() => onSelect(item.id)}
                 className={`w-full min-w-0 rounded-[22px] border p-3 text-right shadow-sm transition ${
                   selected
-                    ? "border-violet-300 bg-violet-50/90 ring-4 ring-violet-500/10"
+                    ? "border-slate-300 bg-slate-100/90 ring-4 ring-slate-400/10"
                     : "border-black/5 bg-white/80 hover:bg-white"
                 }`}
               >
@@ -1190,25 +1193,27 @@ function CaseForm({
           />
 
           {form.next_hearing_date ? (
-            <p className="mt-2 rounded-2xl bg-amber-50 px-3 py-2 text-xs font-black leading-6 text-amber-800">
+            <p className="mt-2 rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black leading-6 text-slate-800">
               سيتم إنشاء جلسة تلقائيًا عند حفظ القضية.
             </p>
           ) : null}
         </div>
 
-        <Field
-          label="الأتعاب المتفق عليها"
-          value={form.agreed_fee_amount}
-          onChange={(value: string) => setForm((prev) => ({ ...prev, agreed_fee_amount: value }))}
-          type="number"
-        />
+        <Can roles={["admin"]}>
+          <Field
+            label="الأتعاب المتفق عليها"
+            value={form.agreed_fee_amount}
+            onChange={(value: string) => setForm((prev) => ({ ...prev, agreed_fee_amount: value }))}
+            type="number"
+          />
 
-        <Field
-          label="المدفوع من الأتعاب"
-          value={form.paid_fee_amount}
-          onChange={(value: string) => setForm((prev) => ({ ...prev, paid_fee_amount: value }))}
-          type="number"
-        />
+          <Field
+            label="المدفوع من الأتعاب"
+            value={form.paid_fee_amount}
+            onChange={(value: string) => setForm((prev) => ({ ...prev, paid_fee_amount: value }))}
+            type="number"
+          />
+        </Can>
       </FormSection>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -1245,7 +1250,7 @@ function CaseForm({
 
       <button
         disabled={saving}
-        className="h-11 w-full rounded-[18px] bg-violet-600 text-sm font-black text-white shadow-lg transition hover:bg-violet-700 disabled:opacity-60"
+        className="h-11 w-full rounded-[18px] bg-slate-900 text-sm font-black text-white shadow-lg transition hover:bg-slate-950 disabled:opacity-60"
       >
         {submitLabel}
       </button>
@@ -1322,7 +1327,7 @@ function CaseDetailsPanel({
     <section className="min-w-0 rounded-[28px] border border-white/70 bg-white/75 p-4 shadow-[0_18px_55px_rgba(0,0,0,0.06)] backdrop-blur-3xl lg:p-5 xl:sticky xl:top-6">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <p className="mb-2 inline-flex rounded-full bg-violet-600 px-3 py-1.5 text-[11px] font-black text-white">
+          <p className="mb-2 inline-flex rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-black text-white">
             ملف القضية
           </p>
           <h2 className="break-words text-xl font-black text-black lg:text-2xl">
@@ -1335,19 +1340,21 @@ function CaseDetailsPanel({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {!isEditing ? (
-            <SmallButton tone="amber" onClick={() => startEditCase(selectedCase)}>
-              تعديل
-            </SmallButton>
-          ) : (
-            <SmallButton tone="zinc" onClick={cancelEdit}>
-              إلغاء
-            </SmallButton>
-          )}
+          <Can roles={["admin"]}>
+            {!isEditing ? (
+              <SmallButton tone="amber" onClick={() => startEditCase(selectedCase)}>
+                تعديل
+              </SmallButton>
+            ) : (
+              <SmallButton tone="zinc" onClick={cancelEdit}>
+                إلغاء
+              </SmallButton>
+            )}
 
-          <SmallButton tone="rose" onClick={() => deleteCase(selectedCase.id)}>
-            حذف
-          </SmallButton>
+            <SmallButton tone="rose" onClick={() => deleteCase(selectedCase.id)}>
+              حذف
+            </SmallButton>
+          </Can>
 
           <SmallButton tone="zinc" onClick={copySummary}>
             {copied ? "تم النسخ" : "نسخ ملخص"}
@@ -1376,27 +1383,31 @@ function CaseDetailsPanel({
         </form>
       ) : (
         <div className="space-y-5">
-          <CaseStatusStrip
-            agreed={agreedFee}
-            paid={paidFee}
-            remaining={remainingFee}
-            remainingTone={remainingTone}
-            hearingLabel={hearingInfo.label}
-            hearingTone={hearingInfo.tone}
-          />
+          <Can roles={["admin"]}>
+            <CaseStatusStrip
+              agreed={agreedFee}
+              paid={paidFee}
+              remaining={remainingFee}
+              remainingTone={remainingTone}
+              hearingLabel={hearingInfo.label}
+              hearingTone={hearingInfo.tone}
+            />
+          </Can>
 
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-            <Info label="متفق">
-              <ResponsiveText>{formatMoney(agreedFee)}</ResponsiveText>
-            </Info>
+            <Can roles={["admin"]}>
+              <Info label="متفق">
+                <ResponsiveText>{formatMoney(agreedFee)}</ResponsiveText>
+              </Info>
 
-            <Info label="مدفوع">
-              <ResponsiveText>{formatMoney(paidFee)}</ResponsiveText>
-            </Info>
+              <Info label="مدفوع">
+                <ResponsiveText>{formatMoney(paidFee)}</ResponsiveText>
+              </Info>
 
-            <Info label="متبقي">
-              <Badge tone={remainingTone}>{formatMoney(remainingFee)}</Badge>
-            </Info>
+              <Info label="متبقي">
+                <Badge tone={remainingTone}>{formatMoney(remainingFee)}</Badge>
+              </Info>
+            </Can>
 
             <Info label="الجلسة">
               <Badge tone={hearingInfo.tone}>{hearingInfo.label}</Badge>
@@ -1519,7 +1530,8 @@ function CaseDetailsPanel({
               )}
             </RelatedBox>
 
-            <RelatedBox title="الماليات" count={payments.length} tone="teal">
+            <Can roles={["admin"]}>
+              <RelatedBox title="الماليات" count={payments.length} tone="teal">
               {payments.length === 0 ? (
                 <SmallEmpty text="لا توجد عمليات مالية مرتبطة." />
               ) : (
@@ -1538,6 +1550,7 @@ function CaseDetailsPanel({
                 </div>
               )}
             </RelatedBox>
+            </Can>
           </section>
         </div>
       )}
@@ -1558,8 +1571,8 @@ function FeeProgressBar({
 }) {
   const progress = feeProgress(agreed, paid);
   const barTones = {
-    teal: "bg-teal-500",
-    amber: "bg-amber-400",
+    teal: "bg-slate-800",
+    amber: "bg-slate-200",
     rose: "bg-rose-500",
   };
 
@@ -1654,9 +1667,9 @@ function SummaryCard({
   tone: "violet" | "blue" | "amber" | "rose";
 }) {
   const tones = {
-    violet: "bg-violet-50 text-violet-800",
-    blue: "bg-blue-50 text-blue-800",
-    amber: "bg-amber-50 text-amber-900",
+    violet: "bg-slate-100 text-slate-800",
+    blue: "bg-slate-100 text-slate-800",
+    amber: "bg-slate-100 text-slate-800",
     rose: "bg-rose-50 text-rose-800",
   };
 
@@ -1711,9 +1724,9 @@ function RelatedBox({
   children: ReactNode;
 }) {
   const tones = {
-    amber: "bg-amber-100 text-amber-900",
-    emerald: "bg-emerald-100 text-emerald-800",
-    teal: "bg-teal-100 text-teal-800",
+    amber: "bg-slate-100 text-slate-800",
+    emerald: "bg-slate-100 text-slate-800",
+    teal: "bg-slate-100 text-slate-800",
   };
 
   return (
@@ -1741,7 +1754,7 @@ function SmallButton({
   onClick: () => void;
 }) {
   const tones = {
-    amber: "bg-amber-100 text-amber-900 hover:bg-amber-200",
+    amber: "bg-slate-100 text-slate-800 hover:bg-amber-200",
     rose: "bg-red-50 text-red-700 hover:bg-red-100",
     zinc: "bg-zinc-100 text-black hover:bg-zinc-200",
     black: "bg-black text-white hover:bg-zinc-800 mt-2",
@@ -1789,7 +1802,7 @@ function Alert({
 }) {
   const tones = {
     red: "border-red-200 bg-red-50/80 text-red-700",
-    green: "border-emerald-200 bg-emerald-50/80 text-emerald-800",
+    green: "border-slate-200 bg-slate-100/80 text-slate-800",
   };
 
   return (

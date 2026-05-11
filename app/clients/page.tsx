@@ -442,7 +442,7 @@ export default function ClientsPage() {
 
             <button
               disabled={saving}
-              className="mt-5 h-12 w-full rounded-[20px] bg-blue-600 text-sm font-black text-white shadow-lg transition hover:bg-blue-700 disabled:opacity-60"
+              className="mt-5 h-12 w-full rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-lg transition hover:bg-slate-950 disabled:opacity-60"
             >
               {saving ? "جاري حفظ الموكل..." : "حفظ الموكل"}
             </button>
@@ -455,7 +455,7 @@ export default function ClientsPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="بحث بالاسم، الهاتف، الرقم القومي، السجل التجاري..."
-                  className="h-12 min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-blue-500/10"
+                  className="h-12 min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-slate-400/10"
                 />
 
                 <select
@@ -537,7 +537,7 @@ export default function ClientsPage() {
                             </div>
                           </div>
 
-                          <span className="shrink-0 rounded-2xl bg-black px-4 py-2 text-xs font-black text-white transition group-hover:bg-blue-600">
+                          <span className="shrink-0 rounded-2xl bg-black px-4 py-2 text-xs font-black text-white transition group-hover:bg-slate-900">
                             فتح الملف
                           </span>
                         </div>

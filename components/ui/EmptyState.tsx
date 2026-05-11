@@ -8,11 +8,11 @@ export default function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[28px] border border-dashed border-black/15 bg-white/55 p-8 text-center">
-      <h3 className="text-lg font-black text-black">{title}</h3>
+    <div className="rounded-[28px] border border-dashed border-slate-300 bg-white/65 p-8 text-center">
+      <h3 className="text-lg font-black text-slate-950">{title}</h3>
 
       {description ? (
-        <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-7 text-zinc-600">
+        <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-7 text-slate-600">
           {description}
         </p>
       ) : null}

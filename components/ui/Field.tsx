@@ -17,7 +17,7 @@ export default function Field({
 }: FieldProps) {
   return (
     <div className="min-w-0">
-      <label className="mb-2 block text-sm font-black text-black">
+      <label className="mb-2 block text-sm font-black text-slate-950">
         {label}
       </label>
 
@@ -27,7 +27,7 @@ export default function Field({
         required={required}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="h-12 w-full min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-semibold text-black outline-none transition placeholder:text-zinc-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-500/10"
+        className="h-12 w-full min-w-0 rounded-[20px] border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-400/10"
       />
     </div>
   );

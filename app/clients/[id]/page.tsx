@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useParams, useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import Can from "@/components/auth/Can";
 import Badge from "@/components/ui/Badge";
 import EmptyState from "@/components/ui/EmptyState";
 import Field from "@/components/ui/Field";
@@ -819,20 +820,22 @@ export default function ClientDetailsPage() {
                 رجوع
               </Link>
 
-              <button
-                onClick={() => setEditingClient((value) => !value)}
-                className="h-12 rounded-[20px] bg-amber-400 px-5 text-sm font-black text-black shadow-sm transition hover:bg-amber-300"
-              >
-                {editingClient ? "إلغاء التعديل" : "تعديل بيانات الموكل"}
-              </button>
+              <Can roles={["admin"]}>
+                <button
+                  onClick={() => setEditingClient((value) => !value)}
+                  className="h-12 rounded-[20px] bg-slate-200 px-5 text-sm font-black text-black shadow-sm transition hover:bg-amber-300"
+                >
+                  {editingClient ? "إلغاء التعديل" : "تعديل بيانات الموكل"}
+                </button>
 
-              <button
-                onClick={handleDeleteClient}
-                disabled={deleting}
-                className="h-12 rounded-[20px] bg-red-600 px-5 text-sm font-black text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60"
-              >
-                {deleting ? "جاري الحذف..." : "حذف الموكل"}
-              </button>
+                <button
+                  onClick={handleDeleteClient}
+                  disabled={deleting}
+                  className="h-12 rounded-[20px] bg-red-600 px-5 text-sm font-black text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60"
+                >
+                  {deleting ? "جاري الحذف..." : "حذف الموكل"}
+                </button>
+              </Can>
             </div>
           }
         />
@@ -845,7 +848,7 @@ export default function ClientDetailsPage() {
         ) : null}
 
         {success ? (
-          <div className="rounded-[26px] border border-emerald-200 bg-emerald-50/80 p-4 text-sm font-black text-emerald-800 backdrop-blur-xl">
+          <div className="rounded-[26px] border border-slate-200 bg-slate-100/80 p-4 text-sm font-black text-slate-800 backdrop-blur-xl">
             {success}
           </div>
         ) : null}
@@ -878,16 +881,18 @@ export default function ClientDetailsPage() {
             onClick={() => setActiveSection("documents")}
           />
 
-          <ActionBox
-            active={activeSection === "payments"}
-            tone="rose"
-            label="الأتعاب"
-            value={formatMoney(unpaidTotal)}
-            hint={`المتفق: ${formatMoney(agreedFeesTotal)} | المدفوع: ${formatMoney(paidTotal)} | مصروفات: ${formatMoney(
-              expensesTotal
-            )}`}
-            onClick={() => setActiveSection("payments")}
-          />
+          <Can roles={["admin"]}>
+            <ActionBox
+              active={activeSection === "payments"}
+              tone="rose"
+              label="الأتعاب"
+              value={formatMoney(unpaidTotal)}
+              hint={`المتفق: ${formatMoney(agreedFeesTotal)} | المدفوع: ${formatMoney(paidTotal)} | مصروفات: ${formatMoney(
+                expensesTotal
+              )}`}
+              onClick={() => setActiveSection("payments")}
+            />
+          </Can>
         </section>
 
         {editingClient ? (
@@ -962,7 +967,7 @@ export default function ClientDetailsPage() {
 
             <button
               disabled={savingClient}
-              className="mt-5 h-12 w-full rounded-[20px] bg-blue-600 text-sm font-black text-white shadow-lg transition hover:bg-blue-700 disabled:opacity-60"
+              className="mt-5 h-12 w-full rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-lg transition hover:bg-slate-950 disabled:opacity-60"
             >
               {savingClient ? "جاري حفظ التعديلات..." : "حفظ التعديلات"}
             </button>
@@ -997,13 +1002,15 @@ export default function ClientDetailsPage() {
             caseOptions={caseOptions}
           />
 
-          <QuickAddPayment
-            paymentForm={paymentForm}
-            setPaymentForm={setPaymentForm}
-            savingPayment={savingPayment}
-            handleAddPayment={handleAddPayment}
-            caseOptions={caseOptions}
-          />
+          <Can roles={["admin"]}>
+            <QuickAddPayment
+              paymentForm={paymentForm}
+              setPaymentForm={setPaymentForm}
+              savingPayment={savingPayment}
+              handleAddPayment={handleAddPayment}
+              caseOptions={caseOptions}
+            />
+          </Can>
         </section>
 
         {activeSection === "cases" ? (
@@ -1044,13 +1051,15 @@ export default function ClientDetailsPage() {
         ) : null}
 
         {activeSection === "payments" ? (
-          <RelatedPayments
-            payments={payments}
-            cases={cases}
-            onRefresh={fetchClientData}
-            setError={setError}
-            showSuccess={showSuccess}
-          />
+          <Can roles={["admin"]}>
+            <RelatedPayments
+              payments={payments}
+              cases={cases}
+              onRefresh={fetchClientData}
+              setError={setError}
+              showSuccess={showSuccess}
+            />
+          </Can>
         ) : null}
       </div>
     </AppShell>
@@ -1089,7 +1098,7 @@ function QuickAddCase({
           <div>
             <Field label="الجلسة القادمة" value={caseForm.next_hearing_date} onChange={(value: string) => setCaseForm({ ...caseForm, next_hearing_date: value })} type="date" />
             {caseForm.next_hearing_date ? (
-              <p className="mt-2 rounded-2xl bg-amber-50 px-3 py-2 text-xs font-black leading-6 text-amber-800">
+              <p className="mt-2 rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black leading-6 text-slate-800">
                 سيتم إنشاء جلسة تلقائيًا في قائمة الجلسات عند حفظ القضية.
               </p>
             ) : null}
@@ -1102,7 +1111,7 @@ function QuickAddCase({
         <TextareaField label="المطلوب" value={caseForm.required_action} onChange={(value: string) => setCaseForm({ ...caseForm, required_action: value })} />
         <TextareaField label="ملخص الحكم" value={caseForm.judgment_summary} onChange={(value: string) => setCaseForm({ ...caseForm, judgment_summary: value })} />
         <TextareaField label="ملاحظات" value={caseForm.notes} onChange={(value: string) => setCaseForm({ ...caseForm, notes: value })} />
-        <button disabled={savingCase} className="h-12 w-full rounded-[20px] bg-violet-600 text-sm font-black text-white shadow-lg hover:bg-violet-700 disabled:opacity-60">
+        <button disabled={savingCase} className="h-12 w-full rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-lg hover:bg-slate-950 disabled:opacity-60">
           {savingCase ? "جاري إضافة القضية..." : caseForm.next_hearing_date ? "إضافة القضية + إنشاء جلسة تلقائيًا" : "إضافة القضية"}
         </button>
       </form>
@@ -1135,7 +1144,7 @@ function QuickAddHearing({
         <TextareaField label="قرار الجلسة" value={hearingForm.decision} onChange={(value: string) => setHearingForm({ ...hearingForm, decision: value })} />
         <TextareaField label="المطلوب للجلسة القادمة" value={hearingForm.required_action} onChange={(value: string) => setHearingForm({ ...hearingForm, required_action: value })} />
         <TextareaField label="ملاحظات" value={hearingForm.notes} onChange={(value: string) => setHearingForm({ ...hearingForm, notes: value })} />
-        <button disabled={savingHearing} className="h-12 w-full rounded-[20px] bg-amber-400 text-sm font-black text-black shadow-lg hover:bg-amber-300 disabled:opacity-60">
+        <button disabled={savingHearing} className="h-12 w-full rounded-[20px] bg-slate-200 text-sm font-black text-black shadow-lg hover:bg-amber-300 disabled:opacity-60">
           {savingHearing ? "جاري إضافة الجلسة..." : "إضافة الجلسة"}
         </button>
       </form>
@@ -1176,7 +1185,7 @@ function QuickAddDocument({
           ) : null}
         </div>
         <TextareaField label="ملاحظات" value={documentForm.notes} onChange={(value: string) => setDocumentForm({ ...documentForm, notes: value })} />
-        <button disabled={savingDocument} className="h-12 w-full rounded-[20px] bg-emerald-600 text-sm font-black text-white shadow-lg hover:bg-emerald-700 disabled:opacity-60">
+        <button disabled={savingDocument} className="h-12 w-full rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-lg hover:bg-slate-950 disabled:opacity-60">
           {savingDocument ? "جاري رفع الملف..." : "رفع وحفظ المستند"}
         </button>
       </form>
@@ -1208,7 +1217,7 @@ function QuickAddPayment({
           <Field label="تاريخ الدفع" value={paymentForm.payment_date} onChange={(value: string) => setPaymentForm({ ...paymentForm, payment_date: value })} type="date" />
         </div>
         <TextareaField label="ملاحظات" value={paymentForm.notes} onChange={(value: string) => setPaymentForm({ ...paymentForm, notes: value })} />
-        <button disabled={savingPayment} className="h-12 w-full rounded-[20px] bg-teal-600 text-sm font-black text-white shadow-lg hover:bg-teal-700 disabled:opacity-60">
+        <button disabled={savingPayment} className="h-12 w-full rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-lg hover:bg-slate-950 disabled:opacity-60">
           {savingPayment ? "جاري الحفظ..." : "حفظ العملية المالية"}
         </button>
       </form>
@@ -1233,13 +1242,13 @@ function ActionBox({
 }) {
   const colors = {
     violet: active
-      ? "bg-violet-600 text-white border-violet-600"
+      ? "bg-slate-900 text-white border-slate-700"
       : "bg-white/70 text-black border-white/70",
     amber: active
-      ? "bg-amber-400 text-black border-amber-400"
+      ? "bg-slate-200 text-black border-amber-400"
       : "bg-white/70 text-black border-white/70",
     emerald: active
-      ? "bg-emerald-600 text-white border-emerald-600"
+      ? "bg-slate-900 text-white border-slate-700"
       : "bg-white/70 text-black border-white/70",
     rose: active
       ? "bg-rose-600 text-white border-rose-600"
@@ -1304,10 +1313,10 @@ function QuickPanel({
   children: React.ReactNode;
 }) {
   const colors = {
-    violet: "bg-violet-600 text-white",
-    amber: "bg-amber-400 text-black",
-    emerald: "bg-emerald-600 text-white",
-    teal: "bg-teal-600 text-white",
+    violet: "bg-slate-900 text-white",
+    amber: "bg-slate-200 text-black",
+    emerald: "bg-slate-900 text-white",
+    teal: "bg-slate-900 text-white",
   };
 
   return (
@@ -1498,7 +1507,7 @@ function RelatedCases({
   return (
     <Panel title="إدارة القضايا">
       <div className="mb-5 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_180px]">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث في القضايا بالرقم، الخصم، المحكمة، القرار..." className="h-12 min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-violet-500/10" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث في القضايا بالرقم، الخصم، المحكمة، القرار..." className="h-12 min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-slate-400/10" />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-12 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-black text-black outline-none">
           <option value="all">كل الحالات</option>
           {Object.entries(caseStatusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
@@ -1513,7 +1522,7 @@ function RelatedCases({
             {filteredCases.map((item) => {
               const active = selectedCase?.id === item.id;
               return (
-                <button key={item.id} type="button" onClick={() => { setSelectedCaseId(item.id); setEditingId(""); }} className={`w-full min-w-0 rounded-[24px] border p-4 text-right shadow-sm transition ${active ? "border-violet-300 bg-violet-50" : "border-black/5 bg-white/75 hover:bg-white"}`}>
+                <button key={item.id} type="button" onClick={() => { setSelectedCaseId(item.id); setEditingId(""); }} className={`w-full min-w-0 rounded-[24px] border p-4 text-right shadow-sm transition ${active ? "border-slate-300 bg-slate-100" : "border-black/5 bg-white/75 hover:bg-white"}`}>
                   <h3 className="break-words font-black text-black">{item.title}</h3>
                   <p className="mt-1 break-words text-xs font-bold text-zinc-600">رقم {item.case_number || "—"} لسنة {item.case_year || "—"}</p>
                   <p className="mt-1 break-words text-xs font-bold text-zinc-500">{item.court_name || "محكمة غير محددة"}</p>
@@ -1592,7 +1601,7 @@ function CaseEditForm({
       <TextareaField label="ملخص الحكم" value={editForm.judgment_summary} onChange={(value: string) => setEditForm({ ...editForm, judgment_summary: value })} />
       <TextareaField label="ملاحظات" value={editForm.notes} onChange={(value: string) => setEditForm({ ...editForm, notes: value })} />
       <div className="flex flex-wrap gap-2">
-        <button disabled={saving} className="rounded-2xl bg-violet-600 px-5 py-3 text-xs font-black text-white disabled:opacity-60">{saving ? "جاري الحفظ..." : "حفظ تعديل القضية"}</button>
+        <button disabled={saving} className="rounded-2xl bg-slate-900 px-5 py-3 text-xs font-black text-white disabled:opacity-60">{saving ? "جاري الحفظ..." : "حفظ تعديل القضية"}</button>
         <button type="button" onClick={onCancel} className="rounded-2xl bg-zinc-100 px-5 py-3 text-xs font-black text-black">إلغاء</button>
       </div>
     </form>
@@ -1631,10 +1640,12 @@ function CaseDetailsView({
           <h3 className="break-words text-2xl font-black text-black">{selectedCase.title}</h3>
           <p className="mt-1 text-xs font-bold text-zinc-600">رقم {selectedCase.case_number || "—"} لسنة {selectedCase.case_year || "—"}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button onClick={onEdit} className="rounded-2xl bg-amber-100 px-4 py-2 text-xs font-black text-amber-900">تعديل القضية</button>
-          <button onClick={onDelete} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف القضية</button>
-        </div>
+        <Can roles={["admin"]}>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={onEdit} className="rounded-2xl bg-slate-100 px-4 py-2 text-xs font-black text-slate-800">تعديل القضية</button>
+            <button onClick={onDelete} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف القضية</button>
+          </div>
+        </Can>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -1670,7 +1681,7 @@ function CaseDetailsView({
       <section className="rounded-[26px] bg-zinc-100/70 p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h4 className="font-black text-black">جلسات هذه القضية</h4>
-          <button onClick={() => setActiveSection("hearings")} className="rounded-2xl bg-amber-100 px-3 py-2 text-xs font-black text-amber-900">إدارة الجلسات</button>
+          <button onClick={() => setActiveSection("hearings")} className="rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-800">إدارة الجلسات</button>
         </div>
         {relatedHearings.length === 0 ? <SmallEmpty text="لا توجد جلسات مرتبطة بهذه القضية." /> : (
           <div className="space-y-2">
@@ -1689,7 +1700,7 @@ function CaseDetailsView({
       <section className="rounded-[26px] bg-zinc-100/70 p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h4 className="font-black text-black">مستندات هذه القضية</h4>
-          <button onClick={() => setActiveSection("documents")} className="rounded-2xl bg-emerald-100 px-3 py-2 text-xs font-black text-emerald-900">إدارة المستندات</button>
+          <button onClick={() => setActiveSection("documents")} className="rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-900">إدارة المستندات</button>
         </div>
         {relatedDocuments.length === 0 ? <SmallEmpty text="لا توجد مستندات مرتبطة بهذه القضية." /> : (
           <div className="space-y-2">
@@ -1705,7 +1716,7 @@ function CaseDetailsView({
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button onClick={() => onOpenDocument(doc)} className="rounded-2xl bg-black px-4 py-2 text-xs font-black text-white">فتح PDF</button>
-                  <button onClick={() => onDeleteDocument(doc)} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف</button>
+                  <Can roles={["admin"]}><button onClick={() => onDeleteDocument(doc)} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف</button></Can>
                 </div>
               </div>
             ))}
@@ -1716,7 +1727,7 @@ function CaseDetailsView({
       <section className="rounded-[26px] bg-zinc-100/70 p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h4 className="font-black text-black">أتعاب ومصروفات هذه القضية</h4>
-          <button onClick={() => setActiveSection("payments")} className="rounded-2xl bg-teal-100 px-3 py-2 text-xs font-black text-teal-900">إدارة الأتعاب</button>
+          <Can roles={["admin"]}><button onClick={() => setActiveSection("payments")} className="rounded-2xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-900">إدارة الأتعاب</button></Can>
         </div>
         {relatedPayments.length === 0 ? <SmallEmpty text="لا توجد عمليات مالية مرتبطة بهذه القضية." /> : (
           <div className="space-y-2">
@@ -1786,12 +1797,12 @@ function RelatedHearings({ hearings, cases, onRefresh, setError, showSuccess }: 
       <div className="mb-5"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث في الجلسات بالتاريخ، المحكمة، القرار، القضية..." className="h-12 w-full min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-amber-500/10" /></div>
       {filtered.length === 0 ? <EmptyState title="لا توجد جلسات" description="جرّب تغيير البحث أو أضف جلسة جديدة من الأعلى." /> : (
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[0.75fr_1.25fr]">
-          <div className="space-y-3">{filtered.map((item) => <button key={item.id} type="button" onClick={() => { setSelectedId(item.id); setEditingId(""); }} className={`w-full rounded-[24px] border p-4 text-right shadow-sm ${selected?.id === item.id ? "border-amber-300 bg-amber-50" : "border-black/5 bg-white/75 hover:bg-white"}`}><Badge tone="amber">{formatDate(item.hearing_date)}</Badge><h3 className="mt-3 break-words font-black text-black">{item.cases?.title || "قضية غير محددة"}</h3><p className="mt-1 text-xs font-bold text-zinc-600">{item.court_name || "محكمة غير محددة"}</p></button>)}</div>
+          <div className="space-y-3">{filtered.map((item) => <button key={item.id} type="button" onClick={() => { setSelectedId(item.id); setEditingId(""); }} className={`w-full rounded-[24px] border p-4 text-right shadow-sm ${selected?.id === item.id ? "border-amber-300 bg-slate-100" : "border-black/5 bg-white/75 hover:bg-white"}`}><Badge tone="amber">{formatDate(item.hearing_date)}</Badge><h3 className="mt-3 break-words font-black text-black">{item.cases?.title || "قضية غير محددة"}</h3><p className="mt-1 text-xs font-bold text-zinc-600">{item.court_name || "محكمة غير محددة"}</p></button>)}</div>
           <div className="rounded-[30px] border border-white/70 bg-white/70 p-5 shadow-sm">
             {!selected ? <EmptyState title="اختر جلسة" /> : editingId === selected.id ? (
-              <form onSubmit={updateHearing} className="space-y-4"><SelectField label="القضية" value={editForm.case_id} onChange={(value: string) => setEditForm({ ...editForm, case_id: value })} options={caseOptions} /><div className="grid grid-cols-1 gap-4 md:grid-cols-2"><Field label="تاريخ الجلسة" value={editForm.hearing_date} onChange={(value: string) => setEditForm({ ...editForm, hearing_date: value })} type="date" required /><Field label="المحكمة" value={editForm.court_name} onChange={(value: string) => setEditForm({ ...editForm, court_name: value })} /><Field label="الدائرة" value={editForm.circuit} onChange={(value: string) => setEditForm({ ...editForm, circuit: value })} /></div><TextareaField label="قرار الجلسة" value={editForm.decision} onChange={(value: string) => setEditForm({ ...editForm, decision: value })} /><TextareaField label="المطلوب" value={editForm.required_action} onChange={(value: string) => setEditForm({ ...editForm, required_action: value })} /><TextareaField label="ملاحظات" value={editForm.notes} onChange={(value: string) => setEditForm({ ...editForm, notes: value })} /><div className="flex flex-wrap gap-2"><button disabled={saving} className="rounded-2xl bg-amber-400 px-5 py-3 text-xs font-black text-black disabled:opacity-60">{saving ? "جاري الحفظ..." : "حفظ تعديل الجلسة"}</button><button type="button" onClick={() => setEditingId("")} className="rounded-2xl bg-zinc-100 px-5 py-3 text-xs font-black text-black">إلغاء</button></div></form>
+              <form onSubmit={updateHearing} className="space-y-4"><SelectField label="القضية" value={editForm.case_id} onChange={(value: string) => setEditForm({ ...editForm, case_id: value })} options={caseOptions} /><div className="grid grid-cols-1 gap-4 md:grid-cols-2"><Field label="تاريخ الجلسة" value={editForm.hearing_date} onChange={(value: string) => setEditForm({ ...editForm, hearing_date: value })} type="date" required /><Field label="المحكمة" value={editForm.court_name} onChange={(value: string) => setEditForm({ ...editForm, court_name: value })} /><Field label="الدائرة" value={editForm.circuit} onChange={(value: string) => setEditForm({ ...editForm, circuit: value })} /></div><TextareaField label="قرار الجلسة" value={editForm.decision} onChange={(value: string) => setEditForm({ ...editForm, decision: value })} /><TextareaField label="المطلوب" value={editForm.required_action} onChange={(value: string) => setEditForm({ ...editForm, required_action: value })} /><TextareaField label="ملاحظات" value={editForm.notes} onChange={(value: string) => setEditForm({ ...editForm, notes: value })} /><div className="flex flex-wrap gap-2"><button disabled={saving} className="rounded-2xl bg-slate-200 px-5 py-3 text-xs font-black text-black disabled:opacity-60">{saving ? "جاري الحفظ..." : "حفظ تعديل الجلسة"}</button><button type="button" onClick={() => setEditingId("")} className="rounded-2xl bg-zinc-100 px-5 py-3 text-xs font-black text-black">إلغاء</button></div></form>
             ) : (
-              <div className="space-y-4"><h3 className="text-2xl font-black text-black">{selected.cases?.title || "قضية غير محددة"}</h3><div className="grid grid-cols-1 gap-3 md:grid-cols-2"><Info label="تاريخ الجلسة"><ResponsiveText>{formatDate(selected.hearing_date)}</ResponsiveText></Info><Info label="المحكمة"><ResponsiveText>{selected.court_name}</ResponsiveText></Info><Info label="الدائرة"><ResponsiveText>{selected.circuit}</ResponsiveText></Info></div><Info label="قرار الجلسة"><ResponsiveText>{selected.decision}</ResponsiveText></Info><Info label="المطلوب"><ResponsiveText>{selected.required_action}</ResponsiveText></Info><Info label="ملاحظات"><ResponsiveText>{selected.notes}</ResponsiveText></Info><div className="flex flex-wrap gap-2"><button onClick={() => startEdit(selected)} className="rounded-2xl bg-amber-100 px-4 py-2 text-xs font-black text-amber-900">تعديل الجلسة</button><button onClick={() => deleteHearing(selected.id)} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف الجلسة</button></div></div>
+              <div className="space-y-4"><h3 className="text-2xl font-black text-black">{selected.cases?.title || "قضية غير محددة"}</h3><div className="grid grid-cols-1 gap-3 md:grid-cols-2"><Info label="تاريخ الجلسة"><ResponsiveText>{formatDate(selected.hearing_date)}</ResponsiveText></Info><Info label="المحكمة"><ResponsiveText>{selected.court_name}</ResponsiveText></Info><Info label="الدائرة"><ResponsiveText>{selected.circuit}</ResponsiveText></Info></div><Info label="قرار الجلسة"><ResponsiveText>{selected.decision}</ResponsiveText></Info><Info label="المطلوب"><ResponsiveText>{selected.required_action}</ResponsiveText></Info><Info label="ملاحظات"><ResponsiveText>{selected.notes}</ResponsiveText></Info><div className="flex flex-wrap gap-2"><Can roles={["admin"]}><button onClick={() => startEdit(selected)} className="rounded-2xl bg-slate-100 px-4 py-2 text-xs font-black text-slate-800">تعديل الجلسة</button><button onClick={() => deleteHearing(selected.id)} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف الجلسة</button></Can></div></div>
             )}
           </div>
         </div>
@@ -1812,7 +1823,7 @@ function RelatedDocuments({ documents, cases, onOpen, onDelete, onRefresh, setEr
   const selected = documents.find((item) => item.id === selectedId) || filtered[0] || null;
   function startEdit(doc: DocumentWithCase) { setSelectedId(doc.id); setEditingId(doc.id); setEditForm({ title: doc.title || "", document_type: doc.document_type, case_id: doc.case_id || "", notes: doc.notes || "" }); }
   async function updateDocument(e: FormEvent<HTMLFormElement>) { e.preventDefault(); if (!editingId) return; if (!editForm.title.trim()) return setError("عنوان المستند مطلوب."); setSaving(true); const { error } = await supabase.from("documents").update({ title: editForm.title.trim(), document_type: editForm.document_type, case_id: editForm.case_id || null, notes: nullIfEmpty(editForm.notes) }).eq("id", editingId); setSaving(false); if (error) return setError(error.message); setEditingId(""); showSuccess("تم تعديل بيانات المستند."); await onRefresh(); }
-  return <Panel title="إدارة المستندات PDF"><div className="mb-5 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_220px]"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث في المستندات بالعنوان، اسم الملف، القضية..." className="h-12 min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-emerald-500/10" /><select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="h-12 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-black text-black outline-none"><option value="all">كل أنواع المستندات</option>{Object.entries(documentTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>{filtered.length === 0 ? <EmptyState title="لا توجد مستندات" description="جرّب تغيير البحث أو ارفع ملف PDF جديد من الأعلى." /> : <div className="grid grid-cols-1 gap-5 xl:grid-cols-[0.75fr_1.25fr]"><div className="space-y-3">{filtered.map((doc) => <button key={doc.id} type="button" onClick={() => { setSelectedId(doc.id); setEditingId(""); }} className={`w-full rounded-[24px] border p-4 text-right shadow-sm ${selected?.id === doc.id ? "border-emerald-300 bg-emerald-50" : "border-black/5 bg-white/75 hover:bg-white"}`}><h3 className="break-words font-black text-black">{doc.title}</h3><p className="mt-1 break-all text-xs font-bold text-zinc-500">{doc.file_name}</p><p className="mt-1 text-xs font-bold text-zinc-600">{doc.cases?.title || "غير مرتبط بقضية"}</p></button>)}</div><div className="rounded-[30px] border border-white/70 bg-white/70 p-5 shadow-sm">{!selected ? <EmptyState title="اختر مستند" /> : editingId === selected.id ? <form onSubmit={updateDocument} className="space-y-4"><Field label="عنوان المستند" value={editForm.title} onChange={(value: string) => setEditForm({ ...editForm, title: value })} required /><SelectField label="نوع المستند" value={editForm.document_type} onChange={(value: string) => setEditForm({ ...editForm, document_type: value as DocumentType })} options={Object.entries(documentTypeLabels).map(([value, label]) => ({ value, label }))} /><SelectField label="ربط بقضية" value={editForm.case_id} onChange={(value: string) => setEditForm({ ...editForm, case_id: value })} options={caseOptions} /><TextareaField label="ملاحظات" value={editForm.notes} onChange={(value: string) => setEditForm({ ...editForm, notes: value })} /><div className="flex flex-wrap gap-2"><button disabled={saving} className="rounded-2xl bg-emerald-600 px-5 py-3 text-xs font-black text-white disabled:opacity-60">{saving ? "جاري الحفظ..." : "حفظ تعديل المستند"}</button><button type="button" onClick={() => setEditingId("")} className="rounded-2xl bg-zinc-100 px-5 py-3 text-xs font-black text-black">إلغاء</button></div></form> : <div className="space-y-4"><h3 className="text-2xl font-black text-black">{selected.title}</h3><div className="grid grid-cols-1 gap-3 md:grid-cols-2"><Info label="نوع المستند"><Badge tone="emerald">{documentTypeLabels[selected.document_type]}</Badge></Info><Info label="اسم الملف الأصلي"><ResponsiveText className="break-all">{selected.file_name}</ResponsiveText></Info><Info label="الحجم"><ResponsiveText>{formatFileSize(selected.file_size)}</ResponsiveText></Info><Info label="تاريخ الرفع"><ResponsiveText>{formatDate(selected.created_at)}</ResponsiveText></Info><Info label="القضية"><ResponsiveText>{selected.cases?.title || "غير مرتبط بقضية"}</ResponsiveText></Info></div><Info label="ملاحظات"><ResponsiveText>{selected.notes}</ResponsiveText></Info><div className="flex flex-wrap gap-2"><button onClick={() => onOpen(selected)} className="rounded-2xl bg-black px-4 py-2 text-xs font-black text-white">فتح PDF</button><button onClick={() => startEdit(selected)} className="rounded-2xl bg-amber-100 px-4 py-2 text-xs font-black text-amber-900">تعديل البيانات</button><button onClick={() => onDelete(selected)} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف المستند</button></div></div>}</div></div>}</Panel>;
+  return <Panel title="إدارة المستندات PDF"><div className="mb-5 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_220px]"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث في المستندات بالعنوان، اسم الملف، القضية..." className="h-12 min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-slate-400/10" /><select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="h-12 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-black text-black outline-none"><option value="all">كل أنواع المستندات</option>{Object.entries(documentTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>{filtered.length === 0 ? <EmptyState title="لا توجد مستندات" description="جرّب تغيير البحث أو ارفع ملف PDF جديد من الأعلى." /> : <div className="grid grid-cols-1 gap-5 xl:grid-cols-[0.75fr_1.25fr]"><div className="space-y-3">{filtered.map((doc) => <button key={doc.id} type="button" onClick={() => { setSelectedId(doc.id); setEditingId(""); }} className={`w-full rounded-[24px] border p-4 text-right shadow-sm ${selected?.id === doc.id ? "border-slate-300 bg-slate-100" : "border-black/5 bg-white/75 hover:bg-white"}`}><h3 className="break-words font-black text-black">{doc.title}</h3><p className="mt-1 break-all text-xs font-bold text-zinc-500">{doc.file_name}</p><p className="mt-1 text-xs font-bold text-zinc-600">{doc.cases?.title || "غير مرتبط بقضية"}</p></button>)}</div><div className="rounded-[30px] border border-white/70 bg-white/70 p-5 shadow-sm">{!selected ? <EmptyState title="اختر مستند" /> : editingId === selected.id ? <form onSubmit={updateDocument} className="space-y-4"><Field label="عنوان المستند" value={editForm.title} onChange={(value: string) => setEditForm({ ...editForm, title: value })} required /><SelectField label="نوع المستند" value={editForm.document_type} onChange={(value: string) => setEditForm({ ...editForm, document_type: value as DocumentType })} options={Object.entries(documentTypeLabels).map(([value, label]) => ({ value, label }))} /><SelectField label="ربط بقضية" value={editForm.case_id} onChange={(value: string) => setEditForm({ ...editForm, case_id: value })} options={caseOptions} /><TextareaField label="ملاحظات" value={editForm.notes} onChange={(value: string) => setEditForm({ ...editForm, notes: value })} /><div className="flex flex-wrap gap-2"><button disabled={saving} className="rounded-2xl bg-slate-900 px-5 py-3 text-xs font-black text-white disabled:opacity-60">{saving ? "جاري الحفظ..." : "حفظ تعديل المستند"}</button><button type="button" onClick={() => setEditingId("")} className="rounded-2xl bg-zinc-100 px-5 py-3 text-xs font-black text-black">إلغاء</button></div></form> : <div className="space-y-4"><h3 className="text-2xl font-black text-black">{selected.title}</h3><div className="grid grid-cols-1 gap-3 md:grid-cols-2"><Info label="نوع المستند"><Badge tone="emerald">{documentTypeLabels[selected.document_type]}</Badge></Info><Info label="اسم الملف الأصلي"><ResponsiveText className="break-all">{selected.file_name}</ResponsiveText></Info><Info label="الحجم"><ResponsiveText>{formatFileSize(selected.file_size)}</ResponsiveText></Info><Info label="تاريخ الرفع"><ResponsiveText>{formatDate(selected.created_at)}</ResponsiveText></Info><Info label="القضية"><ResponsiveText>{selected.cases?.title || "غير مرتبط بقضية"}</ResponsiveText></Info></div><Info label="ملاحظات"><ResponsiveText>{selected.notes}</ResponsiveText></Info><div className="flex flex-wrap gap-2"><button onClick={() => onOpen(selected)} className="rounded-2xl bg-black px-4 py-2 text-xs font-black text-white">فتح PDF</button><Can roles={["admin"]}><button onClick={() => startEdit(selected)} className="rounded-2xl bg-slate-100 px-4 py-2 text-xs font-black text-slate-800">تعديل البيانات</button><button onClick={() => onDelete(selected)} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف المستند</button></Can></div></div>}</div></div>}</Panel>;
 }
 
 function RelatedPayments({ payments, cases, onRefresh, setError, showSuccess }: { payments: Payment[]; cases: Case[]; onRefresh: () => Promise<void>; setError: (message: string) => void; showSuccess: (message: string) => void; }) {
@@ -1830,11 +1841,11 @@ function RelatedPayments({ payments, cases, onRefresh, setError, showSuccess }: 
   async function adjustCasePaidAmount(caseId: string, delta: number) { const currentCase = cases.find((item) => item.id === caseId); const currentPaid = numberValue((currentCase as Case & { paid_fee_amount?: number | null } | undefined)?.paid_fee_amount); await supabase.from("cases").update({ paid_fee_amount: Math.max(currentPaid + delta, 0), updated_at: new Date().toISOString() }).eq("id", caseId); }
   async function updatePayment(e: FormEvent<HTMLFormElement>) { e.preventDefault(); if (!editingId) return; const amount = Number(editForm.amount); if (!amount || amount <= 0) return setError("اكتب مبلغ صحيح."); const original = payments.find((item) => item.id === editingId); setSaving(true); const { error } = await supabase.from("payments").update({ case_id: editForm.case_id || null, amount, payment_type: editForm.payment_type, status: editForm.status, payment_date: dateOrNull(editForm.payment_date), notes: nullIfEmpty(editForm.notes) }).eq("id", editingId); if (!error) { if (original?.case_id && original.payment_type === "fee" && original.status !== "unpaid") await adjustCasePaidAmount(original.case_id, -Number(original.amount || 0)); if (editForm.case_id && editForm.payment_type === "fee" && editForm.status !== "unpaid") await adjustCasePaidAmount(editForm.case_id, amount); } setSaving(false); if (error) return setError(error.message); setEditingId(""); showSuccess("تم تعديل العملية المالية وتحديث أتعاب القضية."); await onRefresh(); }
   async function deletePayment(id: string) { if (!confirm("هل تريد حذف هذه العملية المالية؟")) return; const original = payments.find((item) => item.id === id); const { error } = await supabase.from("payments").delete().eq("id", id); if (!error && original?.case_id && original.payment_type === "fee" && original.status !== "unpaid") await adjustCasePaidAmount(original.case_id, -Number(original.amount || 0)); if (error) return setError(error.message); setSelectedId(""); setEditingId(""); showSuccess("تم حذف العملية المالية وتحديث أتعاب القضية."); await onRefresh(); }
-  return <Panel title="إدارة الأتعاب والمصروفات"><div className="mb-5 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_160px_160px]"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث في العمليات المالية بالمبلغ أو الملاحظات..." className="h-12 min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-teal-500/10" /><select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="h-12 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-black text-black outline-none"><option value="all">كل الأنواع</option><option value="fee">أتعاب</option><option value="expense">مصروفات</option></select><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-12 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-black text-black outline-none"><option value="all">كل الحالات</option><option value="paid">مدفوع</option><option value="unpaid">غير مدفوع</option><option value="partial">جزئي</option></select></div>{filtered.length === 0 ? <EmptyState title="لا توجد عمليات مالية" description="جرّب تغيير البحث أو أضف أتعاب/مصروفات من الأعلى." /> : <div className="grid grid-cols-1 gap-5 xl:grid-cols-[0.75fr_1.25fr]"><div className="space-y-3">{filtered.map((item) => <button key={item.id} type="button" onClick={() => { setSelectedId(item.id); setEditingId(""); }} className={`w-full rounded-[24px] border p-4 text-right shadow-sm ${selected?.id === item.id ? "border-teal-300 bg-teal-50" : "border-black/5 bg-white/75 hover:bg-white"}`}><h3 className="font-black text-black">{formatMoney(Number(item.amount))}</h3><p className="mt-1 text-xs font-bold text-zinc-600">{item.payment_type === "fee" ? "أتعاب" : "مصروفات"} — {item.status}</p></button>)}</div><div className="rounded-[30px] border border-white/70 bg-white/70 p-5 shadow-sm">{!selected ? <EmptyState title="اختر عملية مالية" /> : editingId === selected.id ? <form onSubmit={updatePayment} className="space-y-4"><SelectField label="ربط بقضية" value={editForm.case_id} onChange={(value: string) => setEditForm({ ...editForm, case_id: value })} options={caseOptions} /><div className="grid grid-cols-1 gap-4 md:grid-cols-2"><Field label="المبلغ" value={editForm.amount} onChange={(value: string) => setEditForm({ ...editForm, amount: value })} type="number" required /><SelectField label="النوع" value={editForm.payment_type} onChange={(value: string) => setEditForm({ ...editForm, payment_type: value })} options={[{ value: "fee", label: "أتعاب" }, { value: "expense", label: "مصروفات" }]} /><SelectField label="الحالة" value={editForm.status} onChange={(value: string) => setEditForm({ ...editForm, status: value })} options={[{ value: "paid", label: "مدفوع" }, { value: "unpaid", label: "غير مدفوع" }, { value: "partial", label: "جزئي" }]} /><Field label="تاريخ الدفع" value={editForm.payment_date} onChange={(value: string) => setEditForm({ ...editForm, payment_date: value })} type="date" /></div><TextareaField label="ملاحظات" value={editForm.notes} onChange={(value: string) => setEditForm({ ...editForm, notes: value })} /><div className="flex flex-wrap gap-2"><button disabled={saving} className="rounded-2xl bg-teal-600 px-5 py-3 text-xs font-black text-white disabled:opacity-60">{saving ? "جاري الحفظ..." : "حفظ تعديل العملية"}</button><button type="button" onClick={() => setEditingId("")} className="rounded-2xl bg-zinc-100 px-5 py-3 text-xs font-black text-black">إلغاء</button></div></form> : <div className="space-y-4"><h3 className="text-2xl font-black text-black">{formatMoney(Number(selected.amount))}</h3><div className="grid grid-cols-1 gap-3 md:grid-cols-2"><Info label="النوع"><Badge tone="teal">{selected.payment_type === "fee" ? "أتعاب" : "مصروفات"}</Badge></Info><Info label="الحالة"><Badge tone={selected.status === "paid" ? "teal" : "rose"}>{selected.status === "paid" ? "مدفوع" : selected.status === "partial" ? "جزئي" : "غير مدفوع"}</Badge></Info><Info label="تاريخ الدفع"><ResponsiveText>{formatDate(selected.payment_date)}</ResponsiveText></Info></div><Info label="ملاحظات"><ResponsiveText>{selected.notes}</ResponsiveText></Info><div className="flex flex-wrap gap-2"><button onClick={() => startEdit(selected)} className="rounded-2xl bg-amber-100 px-4 py-2 text-xs font-black text-amber-900">تعديل العملية</button><button onClick={() => deletePayment(selected.id)} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف العملية</button></div></div>}</div></div>}</Panel>;
+  return <Panel title="إدارة الأتعاب والمصروفات"><div className="mb-5 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_160px_160px]"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث في العمليات المالية بالمبلغ أو الملاحظات..." className="h-12 min-w-0 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-bold text-black outline-none placeholder:text-zinc-400 focus:ring-4 focus:ring-slate-400/10" /><select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="h-12 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-black text-black outline-none"><option value="all">كل الأنواع</option><option value="fee">أتعاب</option><option value="expense">مصروفات</option></select><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-12 rounded-[20px] border border-black/10 bg-white/80 px-4 text-sm font-black text-black outline-none"><option value="all">كل الحالات</option><option value="paid">مدفوع</option><option value="unpaid">غير مدفوع</option><option value="partial">جزئي</option></select></div>{filtered.length === 0 ? <EmptyState title="لا توجد عمليات مالية" description="جرّب تغيير البحث أو أضف أتعاب/مصروفات من الأعلى." /> : <div className="grid grid-cols-1 gap-5 xl:grid-cols-[0.75fr_1.25fr]"><div className="space-y-3">{filtered.map((item) => <button key={item.id} type="button" onClick={() => { setSelectedId(item.id); setEditingId(""); }} className={`w-full rounded-[24px] border p-4 text-right shadow-sm ${selected?.id === item.id ? "border-slate-300 bg-slate-100" : "border-black/5 bg-white/75 hover:bg-white"}`}><h3 className="font-black text-black">{formatMoney(Number(item.amount))}</h3><p className="mt-1 text-xs font-bold text-zinc-600">{item.payment_type === "fee" ? "أتعاب" : "مصروفات"} — {item.status}</p></button>)}</div><div className="rounded-[30px] border border-white/70 bg-white/70 p-5 shadow-sm">{!selected ? <EmptyState title="اختر عملية مالية" /> : editingId === selected.id ? <form onSubmit={updatePayment} className="space-y-4"><SelectField label="ربط بقضية" value={editForm.case_id} onChange={(value: string) => setEditForm({ ...editForm, case_id: value })} options={caseOptions} /><div className="grid grid-cols-1 gap-4 md:grid-cols-2"><Field label="المبلغ" value={editForm.amount} onChange={(value: string) => setEditForm({ ...editForm, amount: value })} type="number" required /><SelectField label="النوع" value={editForm.payment_type} onChange={(value: string) => setEditForm({ ...editForm, payment_type: value })} options={[{ value: "fee", label: "أتعاب" }, { value: "expense", label: "مصروفات" }]} /><SelectField label="الحالة" value={editForm.status} onChange={(value: string) => setEditForm({ ...editForm, status: value })} options={[{ value: "paid", label: "مدفوع" }, { value: "unpaid", label: "غير مدفوع" }, { value: "partial", label: "جزئي" }]} /><Field label="تاريخ الدفع" value={editForm.payment_date} onChange={(value: string) => setEditForm({ ...editForm, payment_date: value })} type="date" /></div><TextareaField label="ملاحظات" value={editForm.notes} onChange={(value: string) => setEditForm({ ...editForm, notes: value })} /><div className="flex flex-wrap gap-2"><button disabled={saving} className="rounded-2xl bg-slate-900 px-5 py-3 text-xs font-black text-white disabled:opacity-60">{saving ? "جاري الحفظ..." : "حفظ تعديل العملية"}</button><button type="button" onClick={() => setEditingId("")} className="rounded-2xl bg-zinc-100 px-5 py-3 text-xs font-black text-black">إلغاء</button></div></form> : <div className="space-y-4"><h3 className="text-2xl font-black text-black">{formatMoney(Number(selected.amount))}</h3><div className="grid grid-cols-1 gap-3 md:grid-cols-2"><Info label="النوع"><Badge tone="teal">{selected.payment_type === "fee" ? "أتعاب" : "مصروفات"}</Badge></Info><Info label="الحالة"><Badge tone={selected.status === "paid" ? "teal" : "rose"}>{selected.status === "paid" ? "مدفوع" : selected.status === "partial" ? "جزئي" : "غير مدفوع"}</Badge></Info><Info label="تاريخ الدفع"><ResponsiveText>{formatDate(selected.payment_date)}</ResponsiveText></Info></div><Info label="ملاحظات"><ResponsiveText>{selected.notes}</ResponsiveText></Info><div className="flex flex-wrap gap-2"><button onClick={() => startEdit(selected)} className="rounded-2xl bg-slate-100 px-4 py-2 text-xs font-black text-slate-800">تعديل العملية</button><button onClick={() => deletePayment(selected.id)} className="rounded-2xl bg-red-50 px-4 py-2 text-xs font-black text-red-700">حذف العملية</button></div></div>}</div></div>}</Panel>;
 }
 
 function MiniBox({ label, value, tone }: { label: string; value: string | number; tone: "amber" | "emerald" | "teal" }) {
-  const colors = { amber: "bg-amber-50 text-amber-900", emerald: "bg-emerald-50 text-emerald-900", teal: "bg-teal-50 text-teal-900" };
+  const colors = { amber: "bg-slate-100 text-slate-800", emerald: "bg-slate-100 text-slate-900", teal: "bg-slate-100 text-slate-900" };
   return <div className={`rounded-[22px] p-4 ${colors[tone]}`}><p className="text-xs font-black opacity-80">{label}</p><p className="mt-2 break-words text-lg font-black">{value}</p></div>;
 }
 

@@ -4,64 +4,86 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useCurrentRole } from "@/hooks/useCurrentRole";
+import type { UserRole } from "@/lib/roles";
+import LogoMark from "@/components/LogoMark";
 
-const navItems = [
-  { href: "/dashboard", label: "لوحة التحكم", accent: "bg-slate-950 text-white" },
-  { href: "/clients", label: "الموكلين", accent: "bg-blue-600 text-white" },
-  { href: "/cases", label: "القضايا", accent: "bg-violet-600 text-white" },
-  { href: "/documents", label: "المستندات", accent: "bg-emerald-600 text-white" },
-  { href: "/hearings", label: "الجلسات", accent: "bg-amber-400 text-black" },
-  { href: "/tasks", label: "المهام", accent: "bg-rose-600 text-white" },
-  { href: "/payments", label: "الأتعاب", accent: "bg-teal-600 text-white" },
+type NavItem = {
+  href: string;
+  label: string;
+  roles?: UserRole[];
+};
+
+const navItems: NavItem[] = [
+  { href: "/dashboard", label: "لوحة التحكم" },
+  { href: "/clients", label: "الموكلين" },
+  { href: "/cases", label: "القضايا" },
+  { href: "/documents", label: "المستندات" },
+  { href: "/hearings", label: "الجلسات" },
+  { href: "/calendar", label: "التقويم" },
+  { href: "/tasks", label: "المهام" },
+  { href: "/payments", label: "الأتعاب", roles: ["admin"] },
+  { href: "/admin/users", label: "صلاحيات المستخدمين", roles: ["admin"] },
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [navigatingTo, setNavigatingTo] = useState("");
+  const { role, isAdmin, loadingRole } = useCurrentRole();
+
+  const visibleNavItems = useMemo(() => {
+    return navItems.filter((item) => !item.roles || item.roles.includes(role));
+  }, [role]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push("/login");
   }
 
+  function roleLabel() {
+    if (loadingRole) return "جاري التحقق";
+    return isAdmin ? "Admin" : "Regular User";
+  }
+
   return (
-    <main dir="rtl" className="min-h-dvh bg-[#f5f5f7] text-black">
+    <main dir="rtl" className="min-h-dvh bg-[#f6f7fb] text-slate-950">
       {navigatingTo ? (
-        <div className="fixed left-0 right-0 top-0 z-50 h-1 bg-zinc-200">
-          <div className="h-full w-2/3 animate-pulse rounded-l-full bg-black" />
+        <div className="fixed left-0 right-0 top-0 z-50 h-1 bg-slate-200">
+          <div className="h-full w-2/3 animate-pulse rounded-l-full bg-slate-950" />
         </div>
       ) : null}
 
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white blur-3xl" />
-        <div className="absolute left-[-140px] top-32 h-96 w-96 rounded-full bg-blue-200/35 blur-3xl" />
-        <div className="absolute bottom-[-160px] right-1/3 h-[430px] w-[430px] rounded-full bg-emerald-100/45 blur-3xl" />
-        <div className="absolute left-1/3 top-1/2 h-72 w-72 rounded-full bg-violet-100/35 blur-3xl" />
+        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-white/60 blur-3xl" />
+        <div className="absolute left-[-160px] top-24 h-[420px] w-[420px] rounded-full bg-white/55 blur-3xl" />
+        <div className="absolute bottom-[-180px] right-1/3 h-[460px] w-[460px] rounded-full bg-white blur-3xl" />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-7xl gap-5 p-4 lg:p-6">
         <aside className="hidden w-72 shrink-0 lg:block">
-          <div className="sticky top-6 rounded-[34px] border border-white/70 bg-white/75 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.10)] backdrop-blur-3xl">
-            <div className="mb-6 rounded-[28px] bg-black p-4 text-white shadow-xl">
+          <div className="sticky top-6 rounded-[34px] border border-slate-200/80 bg-white/82 p-4 shadow-[0_25px_80px_rgba(15,23,42,0.10)] backdrop-blur-3xl">
+            <div className="mb-6 rounded-[28px] bg-slate-950 p-4 text-white shadow-xl">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-2xl font-black text-black">
-                  ي
-                </div>
+                <LogoMark size="lg" rounded="rounded-[24px]" />
                 <div className="min-w-0">
                   <h1 className="truncate text-sm font-black leading-6">
                     مؤسسة ياسر الرفاعي
                   </h1>
-                  <p className="text-xs font-semibold text-zinc-400">
+                  <p className="text-xs font-semibold text-slate-300">
                     للمحاماة
                   </p>
                 </div>
               </div>
+
+              <div className="mt-4 rounded-2xl bg-white/10 px-3 py-2 text-xs font-black text-white">
+                الصلاحية: {roleLabel()}
+              </div>
             </div>
 
             <nav className="space-y-2">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const active =
                   pathname === item.href || pathname.startsWith(item.href + "/");
 
@@ -72,8 +94,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     onClick={() => setNavigatingTo(item.href)}
                     className={`block rounded-[22px] px-4 py-3 text-sm font-black transition ${
                       active
-                        ? item.accent + " shadow-lg"
-                        : "text-black hover:bg-white"
+                        ? "bg-slate-950 text-white shadow-lg shadow-slate-950/10"
+                        : "text-slate-800 hover:bg-slate-100 hover:text-slate-950"
                     }`}
                   >
                     <span className="block truncate">{item.label}</span>
@@ -84,7 +106,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
             <button
               onClick={handleLogout}
-              className="mt-6 h-12 w-full rounded-[22px] border border-black/10 bg-white/80 text-sm font-black text-black transition hover:bg-red-50 hover:text-red-700"
+              className="mt-6 h-12 w-full rounded-[22px] border border-slate-200 bg-white text-sm font-black text-slate-900 transition hover:bg-rose-50 hover:text-rose-700"
             >
               تسجيل الخروج
             </button>
@@ -92,27 +114,30 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <section className="min-w-0 flex-1">
-          <header className="mb-5 rounded-[30px] border border-white/70 bg-white/75 p-4 shadow-[0_18px_50px_rgba(0,0,0,0.07)] backdrop-blur-3xl lg:hidden">
+          <header className="mb-5 rounded-[30px] border border-slate-200/80 bg-white/82 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.07)] backdrop-blur-3xl lg:hidden">
             <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <h1 className="truncate text-lg font-black text-black">
-                  مؤسسة ياسر الرفاعي
-                </h1>
-                <p className="truncate text-xs font-bold text-zinc-600">
-                  نظام إدارة العمل القانوني
-                </p>
+              <div className="flex min-w-0 items-center gap-3">
+                <LogoMark size="md" rounded="rounded-[22px]" />
+                <div className="min-w-0">
+                  <h1 className="truncate text-lg font-black text-slate-950">
+                    مؤسسة ياسر الرفاعي
+                  </h1>
+                  <p className="truncate text-xs font-bold text-slate-500">
+                    نظام إدارة العمل القانوني · {roleLabel()}
+                  </p>
+                </div>
               </div>
 
               <button
                 onClick={handleLogout}
-                className="shrink-0 rounded-2xl bg-black px-4 py-2 text-xs font-black text-white"
+                className="shrink-0 rounded-2xl bg-slate-950 px-4 py-2 text-xs font-black text-white"
               >
                 خروج
               </button>
             </div>
 
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const active =
                   pathname === item.href || pathname.startsWith(item.href + "/");
 
@@ -122,7 +147,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     href={item.href}
                     onClick={() => setNavigatingTo(item.href)}
                     className={`whitespace-nowrap rounded-2xl px-4 py-2 text-xs font-black ${
-                      active ? item.accent : "bg-white/90 text-black"
+                      active
+                        ? "bg-slate-950 text-white"
+                        : "bg-slate-100 text-slate-800"
                     }`}
                   >
                     {item.label}

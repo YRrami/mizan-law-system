@@ -138,3 +138,26 @@ export type Payment = {
   notes: string | null;
   created_at: string;
 };
+
+
+export type TaskStatus = "todo" | "in_progress" | "done" | "cancelled";
+
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+
+export type Task = {
+  id: string;
+  user_id: string;
+  assigned_by: string;
+  assigned_to: string;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  due_date: string | null;
+  client_id: string | null;
+  case_id: string | null;
+  completion_notes: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
